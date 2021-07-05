@@ -7,56 +7,88 @@ using UnityEngine.EventSystems;
 
 public class InputController : MonoBehaviour
 {
+    [SerializeField] private int FOVX;
+    [SerializeField] private float FOVY;
+    public float sens;
+    [SerializeField] private float smooth;
     private Camera _camera;
+    private Quaternion cameraOriginalRotation;
+    private Vector3 cameraOriginalPostion;
     private IEnumerable<Cube> _cubes;
-    private RaycastHit _target;
-    private Touch _touch;
-    private Cube _sliced = null;
-    private Ray _ray;
-
+    private Touch[] _touches;
     private List<TouchTrail> _trails;
+    private float angleHorizontal;
+    private float angleVertical;
+    private float xVelocity = 0f;
+    private float yVelocity = 0f;
     void Start()
     {
         _trails = FindObjectsOfType<TouchTrail>().ToList();
         _cubes = FindObjectsOfType<Cube>().ToList();
         _camera = Camera.main;
+        cameraOriginalRotation = _camera.transform.rotation;
+        cameraOriginalPostion = _camera.transform.position;
     }
 
     void Update()
     {
+        angleVertical = Mathf.SmoothDampAngle(_camera.transform.position.x, Mathf.Clamp((float)Math.Round(Input.acceleration.x, 2), -sens, sens) * FOVY, ref yVelocity, smooth);
+        angleHorizontal = Mathf.SmoothDampAngle(_camera.transform.eulerAngles.x, -(float)Math.Round(Input.acceleration.z, 2) * FOVX - 25, ref xVelocity, smooth);
+        _camera.transform.SetPositionAndRotation(cameraOriginalPostion + new Vector3(angleVertical, 0f, 0f), cameraOriginalRotation * Quaternion.AngleAxis(angleHorizontal, Vector3.right));
+
         if (Input.touchCount > 0)
         {
-            for (int i = 0; i < Input.touchCount; i++)
+            _touches = Input.touches;
+            for (int i = 0; i < _touches.Length && i < 5; i++)
             {
-                _touch = Input.GetTouch(i);
-                if (i < 5) // fix later
-                {
-                    if (_touch.phase == TouchPhase.Began)
-                        _trails[i].Move(_touch.position);
-                    _trails[i].Trail(_touch.position);
-                }
+                Vector2 pos = _touches[i].position;
+                Vector2 deltaPos = _touches[i].deltaPosition;
+                TouchPhase touchPhase = _touches[i].phase;
+                if (touchPhase == TouchPhase.Began)
+                    _trails[_touches[i].fingerId].SetPosition(pos);
+                else
+                    _trails[_touches[i].fingerId].Trail(pos);
+
                 for (int j = 0; j < 7; j++)
                 {
-                    _ray = _camera.ScreenPointToRay(_touch.position - _touch.deltaPosition * j / 7);
-                    if (Physics.Raycast(_ray, out _target))
+                    GameObject target = TryRayCast(pos - deltaPos * j / 7);
+                    if (target != null)
                     {
-                        if (_target.distance < 8)
+                        if (target.layer == 7) // Cube layer
                         {
-                            Debug.Log("hit");
-                            _sliced = _cubes.First(cube => cube.gameObject == _target.collider.gameObject);
-                            // direction
-                            if (_touch.deltaPosition.x > 20 && Math.Abs(_touch.deltaPosition.x) > Math.Abs(_touch.deltaPosition.y * 2))
-                                _sliced.CubeColor = Color.gray;
-                            if (_touch.deltaPosition.x < -20 && Math.Abs(_touch.deltaPosition.x) > Math.Abs(_touch.deltaPosition.y * 2))
-                                _sliced.CubeColor = Color.red;
-                            if (_touch.deltaPosition.y > 20 && Math.Abs(_touch.deltaPosition.y) > Math.Abs(_touch.deltaPosition.x * 2))
-                                _sliced.CubeColor = Color.blue;
-                            if (_touch.deltaPosition.y < -20 && Math.Abs(_touch.deltaPosition.y) > Math.Abs(_touch.deltaPosition.x * 2))
-                                _sliced.CubeColor = Color.white;
+                            Cube sliced = _cubes.First(cube => cube.gameObject == target);
+                            if (sliced != null)
+                            {
+                                if (deltaPos.x > 40 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2))
+                                    sliced.color = Cube.CubeColor.blue;
+                                if (deltaPos.x < -40 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2))
+                                    sliced.color = Cube.CubeColor.red;
+                                if (deltaPos.y > 40 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2))
+                                    sliced.color = Cube.CubeColor.blue;
+                                if (deltaPos.y < -40 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2))
+                                    sliced.color = Cube.CubeColor.red;
+                            }
+                        }
+                        if (target.layer == 5 && touchPhase == TouchPhase.Began) // UI layer
+                        {
+
                         }
                     }
                 }
             }
         }
+    }
+
+    private GameObject TryRayCast(Vector2 pos)
+    {
+        Ray ray = _camera.ScreenPointToRay(pos);
+        if (Physics.Raycast(ray, out RaycastHit target))
+        {
+            if (target.distance < 8)
+            {
+                return target.collider.gameObject;
+            }
+        }
+        return null;
     }
 }

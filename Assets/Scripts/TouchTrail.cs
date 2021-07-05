@@ -14,7 +14,7 @@ public class TouchTrail : MonoBehaviour
         pos.z = 1f;
         gameObject.transform.position = _camera.ScreenToWorldPoint(pos);
     }
-    public void Move(Vector3 startPos)
+    public void SetPosition(Vector3 startPos)
     {
         gameObject.SetActive(false);
         startPos.z = 1f;
