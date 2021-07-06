@@ -102,11 +102,11 @@ GraphicsSettings:
     m_Settings:
       standardShaderQuality: 0
       renderingPath: 1
-      hdrMode: 2
+      hdrMode: 1
       realtimeGICPUUsage: 25
       useReflectionProbeBoxProjection: 0
       useReflectionProbeBlending: 0
-      useHDR: 0
+      useHDR: 1
       useDetailNormalMap: 0
       useCascadedShadowMaps: 0
       prefer32BitShadowMaps: 0
