@@ -8,6 +8,7 @@ public class Cube : MonoBehaviour
     private Material ArrowMaterial;
     public enum CubeOrientation { left, right, up, down }
     public enum CubeColor { blue, red }
+    private CubeColor currentColor;
     void Start()
     {
         CubeMaterial = gameObject.GetComponentsInChildren<Renderer>()[1].material;
@@ -15,7 +16,7 @@ public class Cube : MonoBehaviour
         ArrowMaterial = gameObject.GetComponentsInChildren<Renderer>()[0].material;
         ArrowMaterial.SetColor("_Color", new Color(0.705882f, 0.741176f, 0.905882f));
         ArrowMaterial.SetColor("_EmissionColor", new Color(0f, 0.070588f, 0.749019f));
-        color = CubeColor.blue;
+        CurrentColor = CubeColor.blue;
     }
 
     void Update()
@@ -23,21 +24,20 @@ public class Cube : MonoBehaviour
         
     }
 
-    public CubeColor color
+    public CubeColor CurrentColor
     {
-        get => color;
+        get => currentColor;
         set
         {
+            currentColor = value;
             if (value == CubeColor.blue)
             {
-                //color = CubeColor.blue;
                 CubeMaterial.SetColor("_Color", new Color(0.062745f, 0.180392f, 0.435294f));
                 ArrowMaterial.SetColor("_Color", new Color(0.705882f, 0.741176f, 0.905882f));
                 ArrowMaterial.SetColor("_EmissionColor", new Color(0f, 0.070588f, 0.749019f));
             }
             if (value == CubeColor.red)
             {
-                //color = CubeColor.red;
                 CubeMaterial.SetColor("_Color", new Color(0.470588f, 0.152941f, 0.113725f));
                 ArrowMaterial.SetColor("_Color", new Color(0.925490f, 0.623529f, 0.596078f));
                 ArrowMaterial.SetColor("_EmissionColor", new Color(0.749019f, 0f, 0f));
@@ -45,5 +45,5 @@ public class Cube : MonoBehaviour
         }
     }
 
-    public CubeOrientation orientation { get; set; }
+    public CubeOrientation Orientation { get; set; }
 }

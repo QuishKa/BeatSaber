@@ -60,13 +60,13 @@ public class InputController : MonoBehaviour
                         if (sliced != null)
                         {
                             if (deltaPos.x > 40 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2))
-                                sliced.color = Cube.CubeColor.blue;
+                                sliced.CurrentColor = Cube.CubeColor.blue;
                             if (deltaPos.x < -40 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2))
-                                sliced.color = Cube.CubeColor.red;
+                                sliced.CurrentColor = Cube.CubeColor.red;
                             if (deltaPos.y > 40 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2))
-                                sliced.color = Cube.CubeColor.blue;
+                                sliced.CurrentColor = Cube.CubeColor.blue;
                             if (deltaPos.y < -40 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2))
-                                sliced.color = Cube.CubeColor.red;
+                                sliced.CurrentColor = Cube.CubeColor.red;
                         }
                     }
                 }
