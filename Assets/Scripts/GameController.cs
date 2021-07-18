@@ -21,17 +21,20 @@ public class GameController : MonoBehaviour
     private float timeSinceLevelStarted;
     private Level currentLevel;
     private int currentSegment;
+    private Text scoreFieldText;
+    private Text comboFieldText;
     public int score { get; private set; }
     private int combo;
     private bool levelIsPlaying = false;
     void Start()
     {
-        
+        scoreFieldText = comboField.GetComponentsInChildren<Text>()[1];
+        comboFieldText = scoreField.GetComponentsInChildren<Text>()[1];
     }
     private void Update()
     {
-        comboField.GetComponent<Text>().text = combo.ToString();
-        scoreField.GetComponent<Text>().text = score.ToString();
+        scoreFieldText.text = combo.ToString();
+        comboFieldText.text = score.ToString();
     }
     void FixedUpdate()
     {
@@ -96,13 +99,15 @@ public class GameController : MonoBehaviour
     private void LoadLevel(Level level)
     {
         menu.SetActive(false);
+        scoreField.SetActive(true);
+        comboField.SetActive(true);
         mainAudio.clip = level.Audio;
-        mainAudio.PlayDelayed(2f);
-        timeSinceLevelStarted = Time.fixedTime;
         currentSegment = -1;
         currentLevel = level;
         score = 0;
         combo = 0;
+        mainAudio.PlayDelayed(2f);
+        timeSinceLevelStarted = Time.fixedTime;
         levelIsPlaying = true;
     }
 

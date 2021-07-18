@@ -36,7 +36,7 @@ public class Editor : MonoBehaviour
             createdButton.GetComponent<RectTransform>().localPosition -= new Vector3(0f, 100 * i, 0f);
             createdButton.GetComponentsInChildren<Text>()[0].text = track.name;
             createdButton.GetComponentsInChildren<Text>()[1].text = track.author;
-            createdButton.GetComponentInChildren<Image>().sprite = track.sprite;
+            createdButton.GetComponentsInChildren<Image>()[1].sprite = track.sprite;
             createdButton.GetComponent<Button>().onClick.AddListener(() => ChosenSong(track));
             i++;
         }
