@@ -10,7 +10,7 @@ public class Cube : MonoBehaviour
     public enum CubeOrientation { up, rightUp, right, rightDown, down, leftDown, left, leftUp }
     public enum CubeColor { blue, red, gray }
     private CubeColor currentColor;
-    void Start()
+    void Awake()
     {
         CubeMaterial = gameObject.GetComponentsInChildren<Renderer>()[1].material;
         CubeMaterial.SetColor("_Color", new Color(0.062745f, 0.180392f, 0.435294f));

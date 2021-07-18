@@ -3202,7 +3202,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 50
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -4390,6 +4390,7 @@ MonoBehaviour:
   swordLenght: 20
   maxFingers: 3
   fixRayCasts: 1
+  gameController: {fileID: 0}
   gameMode: 1
 --- !u!4 &994660212
 Transform:
@@ -7149,7 +7150,7 @@ AudioSource:
   m_GameObject: {fileID: 1669072628}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 34556d9806d1be34b9e03e6fee70ceec,
+  OutputAudioMixerGroup: {fileID: -184163067890553986, guid: 34556d9806d1be34b9e03e6fee70ceec,
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0

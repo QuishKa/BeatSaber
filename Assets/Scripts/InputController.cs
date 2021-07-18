@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.EventSystems;
 
 public class InputController : MonoBehaviour
 {
@@ -21,6 +19,7 @@ public class InputController : MonoBehaviour
     [SerializeField] private int maxFingers;
     [Tooltip("The number of raycasts between current and previous finger position. Used to fix input misreading.")]
     [SerializeField] private int fixRayCasts;
+    [SerializeField] private GameController gameController;
     [SerializeField] private GameMode gameMode;
     private Camera _camera;
     private Editor _editor;
@@ -72,19 +71,27 @@ public class InputController : MonoBehaviour
                     GameObject target = TryRayCast(pos - deltaPos * j / fixRayCasts);
                     if (target != null)
                     {
-                        Cube sliced = _cubes.First(cube => cube.gameObject == target);
+                        Cube sliced;
+                        if (gameMode == GameMode.main)
+                        {
+                            sliced = gameController.ActiveCubes.Single(cube => cube.gameObject == target);
+                        }
+                        else
+                        {
+                            sliced = _cubes.Single(cube => cube.gameObject == target);
+                        }
                         switch (gameMode)
                         {
                             case GameMode.main:
                                 // calculating direction
-                                if (deltaPos.x > 40 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2))
-                                    sliced.CurrentColor = Cube.CubeColor.blue;
-                                if (deltaPos.x < -40 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2))
-                                    sliced.CurrentColor = Cube.CubeColor.red;
-                                if (deltaPos.y > 40 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2))
-                                    sliced.CurrentColor = Cube.CubeColor.blue;
-                                if (deltaPos.y < -40 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2))
-                                    sliced.CurrentColor = Cube.CubeColor.red;
+                                if (deltaPos.x > 40 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2)) // right
+                                    gameController.SliceCube(sliced, Cube.CubeOrientation.right);
+                                if (deltaPos.x < -40 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2)) // left
+                                    gameController.SliceCube(sliced, Cube.CubeOrientation.left);
+                                if (deltaPos.y > 40 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2)) // up
+                                    gameController.SliceCube(sliced, Cube.CubeOrientation.up);
+                                if (deltaPos.y < -40 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2)) // down
+                                    gameController.SliceCube(sliced, Cube.CubeOrientation.down);
                                 break;
                             case GameMode.edit:
                                 _editor.ClickedCube(sliced);

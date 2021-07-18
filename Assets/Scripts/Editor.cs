@@ -56,7 +56,7 @@ public class Editor : MonoBehaviour
                 {
                     Level.Element edited = cubeSegment.elements.First(elem => elem.position == (Vector2)cube.transform.position);
                     cube.CurrentColor = edited.color;
-                    Quaternion rotation = Quaternion.AngleAxis(45 * (int)edited.orientation, Vector3.left);
+                    Quaternion rotation = Quaternion.AngleAxis(180 - 45 * (int)edited.orientation, Vector3.right);
                     cube.transform.rotation = cube.DefaultRotation * rotation;
                 }
                 else
@@ -67,7 +67,8 @@ public class Editor : MonoBehaviour
             }
             currentSegment = Mathf.FloorToInt(audioSource.time / (1 / (float)segmentMulti));
             currentSegment = currentSegment > level.Segments ? currentSegment - 1 : currentSegment;
-            segmentShow.text = $"Segment: {Mathf.FloorToInt(audioSource.time / (1 / (float)segmentMulti))} / {level.Segments}";
+            currentSegment = currentSegment < 0 ? 0 : currentSegment;
+            segmentShow.text = $"Segment: {currentSegment} / {level.Segments}";
             slider.value = audioSource.time / audioSource.clip.length;
         }
     }
@@ -129,7 +130,7 @@ public class Editor : MonoBehaviour
 #if UNITY_ANDROID && !UNITY_EDITOR
         path = Path.Combine(Application.persistentDataPath, "Levels.json");
 #else
-        path = Path.Combine(Application.dataPath, "Levels.json");
+        path = Path.Combine(Application.dataPath, "Level.json");
 #endif
         File.WriteAllText(path, JsonUtility.ToJson(level));
     }
@@ -163,11 +164,11 @@ public class Level
             cubeSegments[i] = new CubeSegment();
         }
     }
-    public AudioClip Audio { get; }
-    public string Author { get; }
-    public string Name { get; }
-    public Sprite Sprite { get; }
-    public int Segments { get; }
+    public AudioClip Audio;
+    public string Author;
+    public string Name;
+    public Sprite Sprite;
+    public int Segments;
     public CubeSegment[] cubeSegments;
     [System.Serializable]
     public class Element
