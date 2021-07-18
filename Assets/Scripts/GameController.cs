@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
-    public enum ButtonType { start, chooseTrack, editTrack, options, exit }
-    public ButtonType buttonType;
     void Start()
     {
         
@@ -16,19 +15,18 @@ public class GameController : MonoBehaviour
         
     }
 
-    public void ButtonPressed(Button.ButtonType buttonType)
+    public void ButtonPressed(string pressedButton)
     {
-        switch (buttonType)
+        switch (pressedButton)
         {
-            case Button.ButtonType.start:
+            case "start":
                 break;
-            case Button.ButtonType.chooseTrack:
+            case "edit":
+                SceneManager.LoadScene(1);
                 break;
-            case Button.ButtonType.editTrack:
+            case "options":
                 break;
-            case Button.ButtonType.options:
-                break;
-            case Button.ButtonType.exit:
+            case "exit":
                 Application.Quit();
                 break;
         }

@@ -6,8 +6,9 @@ public class Cube : MonoBehaviour
 {
     private Material CubeMaterial;
     private Material ArrowMaterial;
-    public enum CubeOrientation { left, right, up, down }
-    public enum CubeColor { blue, red }
+    public Quaternion DefaultRotation { get; private set; }
+    public enum CubeOrientation { up, rightUp, right, rightDown, down, leftDown, left, leftUp }
+    public enum CubeColor { blue, red, gray }
     private CubeColor currentColor;
     void Start()
     {
@@ -16,14 +17,9 @@ public class Cube : MonoBehaviour
         ArrowMaterial = gameObject.GetComponentsInChildren<Renderer>()[0].material;
         ArrowMaterial.SetColor("_Color", new Color(0.705882f, 0.741176f, 0.905882f));
         ArrowMaterial.SetColor("_EmissionColor", new Color(0f, 0.070588f, 0.749019f));
-        CurrentColor = CubeColor.blue;
+        DefaultRotation = gameObject.transform.rotation;
+        CurrentColor = CubeColor.gray;
     }
-
-    void Update()
-    {
-        
-    }
-
     public CubeColor CurrentColor
     {
         get => currentColor;
@@ -42,8 +38,13 @@ public class Cube : MonoBehaviour
                 ArrowMaterial.SetColor("_Color", new Color(0.925490f, 0.623529f, 0.596078f));
                 ArrowMaterial.SetColor("_EmissionColor", new Color(0.749019f, 0f, 0f));
             }
+            if (value == CubeColor.gray)
+            {
+                CubeMaterial.SetColor("_Color", Color.gray);
+                ArrowMaterial.SetColor("_Color", Color.gray);
+                ArrowMaterial.SetColor("_EmissionColor", Color.gray);
+            }
         }
     }
-
     public CubeOrientation Orientation { get; set; }
 }
