@@ -18,6 +18,7 @@ public class Editor : MonoBehaviour
     [SerializeField] private int segmentMulti;
     [SerializeField] private Text segmentShow;
     [SerializeField] private Slider slider;
+    [SerializeField] private InputField lvlName;
     [SerializeField] private Track[] tracks;
     private List<Cube> _cubes;
     private int currentSegment;
@@ -128,11 +129,15 @@ public class Editor : MonoBehaviour
     {
         string path;
 #if UNITY_ANDROID && !UNITY_EDITOR
-        path = Path.Combine(Application.persistentDataPath, "Levels.json");
+        path = Path.Combine(Application.persistentDataPath, $"{lvlName.textComponent.text}.json");
 #else
-        path = Path.Combine(Application.dataPath, "Level.json");
+        path = Path.Combine(Application.dataPath, $"{lvlName.textComponent.text}.json");
 #endif
+        level.LevelName = lvlName.textComponent.text;
         File.WriteAllText(path, JsonUtility.ToJson(level));
+        choosingMenu.SetActive(true);
+        editMenu.SetActive(false);
+        cubes.SetActive(false);
     }
     public List<Cube> GetCubes() => _cubes;
     public void Back()
@@ -164,6 +169,7 @@ public class Level
             cubeSegments[i] = new CubeSegment();
         }
     }
+    public string LevelName;
     public AudioClip Audio;
     public string Author;
     public string Name;

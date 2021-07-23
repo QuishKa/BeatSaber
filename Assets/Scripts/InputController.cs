@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -32,6 +31,7 @@ public class InputController : MonoBehaviour
     private float angleVertical;
     private float xVelocity = 0f;
     private float yVelocity = 0f;
+    public bool gamePaused = false;
     private void Start()
     {
         //_trails = FindObjectsOfType<TouchTrail>().ToList();
@@ -47,56 +47,66 @@ public class InputController : MonoBehaviour
     }
     private void Update()
     {
+        if (!gamePaused) { 
         // Math.Round is used to cut off unnesessary and random changes in device position
         angleVertical = Mathf.SmoothDampAngle(_camera.transform.position.x, Mathf.Clamp((float)Math.Round(Input.acceleration.x, 2), -accelerationSens, accelerationSens) * FOVY, ref yVelocity, smooth);
         angleHorizontal = Mathf.SmoothDampAngle(_camera.transform.eulerAngles.x, -(float)Math.Round(Input.acceleration.z, 2) * FOVX - FOVXFix, ref xVelocity, smooth);
         _camera.transform.SetPositionAndRotation(cameraOriginalPostion + new Vector3(angleVertical, 0f, 0f), cameraOriginalRotation * Quaternion.AngleAxis(angleHorizontal, Vector3.right));
 
-        if (Input.touchCount > 0)
-        {
-            _touches = Input.touches;
-            for (int i = 0; i < _touches.Length && i < maxFingers; i++)
+            if (Input.touchCount > 0)
             {
-                Vector2 pos = _touches[i].position;
-                Vector2 deltaPos = _touches[i].deltaPosition;
-                //TouchPhase touchPhase = _touches[i].phase;
-                //doesn't work as I expected
-                //if (touchPhase == TouchPhase.Began)
-                //    _trails[_touches[i].fingerId].SetPosition(pos);
-                //else
-                //    _trails[_touches[i].fingerId].Trail(pos);
-
-                for (int j = 0; j < fixRayCasts; j++)
+                _touches = Input.touches;
+                for (int i = 0; i < _touches.Length && i < maxFingers; i++)
                 {
-                    GameObject target = TryRayCast(pos - deltaPos * j / fixRayCasts);
-                    if (target != null)
+                    Vector2 pos = _touches[i].position;
+                    Vector2 deltaPos = _touches[i].deltaPosition;
+                    //TouchPhase touchPhase = _touches[i].phase;
+                    //doesn't work as I expected
+                    //if (touchPhase == TouchPhase.Began)
+                    //    _trails[_touches[i].fingerId].SetPosition(pos);
+                    //else
+                    //    _trails[_touches[i].fingerId].Trail(pos);
+
+                    for (int j = 0; j < fixRayCasts; j++)
                     {
-                        Cube sliced;
-                        if (gameMode == GameMode.main)
+                        GameObject target = TryRayCast(pos - deltaPos * j / fixRayCasts);
+                        if (target != null)
                         {
-                            sliced = gameController.ActiveCubes.Single(cube => cube.gameObject == target);
+                            Cube sliced;
+                            if (gameMode == GameMode.main)
+                            {
+                                sliced = gameController.ActiveCubes.Single(cube => cube.gameObject == target);
+                            }
+                            else
+                            {
+                                sliced = _cubes.Single(cube => cube.gameObject == target);
+                            }
+                            switch (gameMode)
+                            {
+                                case GameMode.main:
+                                    // calculating direction
+                                    if (deltaPos.x > 50 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2)) // right
+                                        gameController.SliceCube(sliced, Cube.CubeOrientation.right);
+                                    if (deltaPos.x < -50 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2)) // left
+                                        gameController.SliceCube(sliced, Cube.CubeOrientation.left);
+                                    if (deltaPos.y > 50 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2)) // up
+                                        gameController.SliceCube(sliced, Cube.CubeOrientation.up);
+                                    if (deltaPos.y < -50 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2)) // down
+                                        gameController.SliceCube(sliced, Cube.CubeOrientation.down);
+                                    if (deltaPos.x > 50 && deltaPos.y > 50)
+                                        gameController.SliceCube(sliced, Cube.CubeOrientation.rightUp);
+                                    if (deltaPos.x > 50 && deltaPos.y < -50)
+                                        gameController.SliceCube(sliced, Cube.CubeOrientation.rightDown);
+                                    if (deltaPos.x < -50 && deltaPos.y < -50)
+                                        gameController.SliceCube(sliced, Cube.CubeOrientation.leftDown);
+                                    if (deltaPos.x < -50 && deltaPos.y > 50)
+                                        gameController.SliceCube(sliced, Cube.CubeOrientation.leftUp);
+                                    break;
+                                case GameMode.edit:
+                                    _editor.ClickedCube(sliced);
+                                    break;
+                            }
                         }
-                        else
-                        {
-                            sliced = _cubes.Single(cube => cube.gameObject == target);
-                        }
-                        switch (gameMode)
-                        {
-                            case GameMode.main:
-                                // calculating direction
-                                if (deltaPos.x > 40 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2)) // right
-                                    gameController.SliceCube(sliced, Cube.CubeOrientation.right);
-                                if (deltaPos.x < -40 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2)) // left
-                                    gameController.SliceCube(sliced, Cube.CubeOrientation.left);
-                                if (deltaPos.y > 40 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2)) // up
-                                    gameController.SliceCube(sliced, Cube.CubeOrientation.up);
-                                if (deltaPos.y < -40 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2)) // down
-                                    gameController.SliceCube(sliced, Cube.CubeOrientation.down);
-                                break;
-                            case GameMode.edit:
-                                _editor.ClickedCube(sliced);
-                                break;
-                        } 
                     }
                 }
             }
