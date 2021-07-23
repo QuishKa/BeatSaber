@@ -134,6 +134,7 @@ public class Editor : MonoBehaviour
         path = Path.Combine(Application.dataPath, $"{lvlName.textComponent.text}.json");
 #endif
         level.LevelName = lvlName.textComponent.text;
+        PlayerPrefs.SetString("LastLevel", level.LevelName);
         File.WriteAllText(path, JsonUtility.ToJson(level));
         choosingMenu.SetActive(true);
         editMenu.SetActive(false);

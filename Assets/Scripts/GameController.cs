@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private InputController inputController;
     [SerializeField] private GameObject levelOverview;
     [SerializeField] private GameObject recordsOverview;
+    [SerializeField] private Slider levelSlider;
     [SerializeField] private GameObject songPrefab;
     [SerializeField] private GameObject recordPrefab;
     [SerializeField] private Cube cubePrefab;
@@ -36,6 +37,7 @@ public class GameController : MonoBehaviour
     private bool levelIsPlaying = false;
     private string recordsPath;
     private Records records = new Records();
+    private AudioClip backgroundMusic;
     void Start()
     {
         scoreFieldText = scoreField.GetComponentInChildren<Text>();
@@ -49,6 +51,20 @@ public class GameController : MonoBehaviour
 #endif
         if (File.Exists(recordsPath))
             records = JsonUtility.FromJson<Records>(File.ReadAllText(recordsPath));
+        if (PlayerPrefs.HasKey("LastLevel"))
+        {
+            string name = PlayerPrefs.GetString("LastLevel");
+            string path;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            path = Path.Combine(Application.persistentDataPath, $"{name}.json");
+#else
+            path = Path.Combine(Application.dataPath, $"{name}.json");
+#endif
+            Level level = JsonUtility.FromJson<Level>(File.ReadAllText(path));
+            backgroundMusic = level.Audio;
+            mainAudio.clip = backgroundMusic;
+        }
+        mainAudio.Play();
     }
     private void Update()
     {
@@ -73,7 +89,7 @@ public class GameController : MonoBehaviour
         }
         if (currentLevel != null)
         {
-
+            levelSlider.value = mainAudio.time / mainAudio.clip.length;
         }
     }
     void FixedUpdate()
@@ -137,7 +153,7 @@ public class GameController : MonoBehaviour
             createdButton.GetComponent<RectTransform>().localPosition -= new Vector3(0f, 100 * i, 0f);
             createdButton.GetComponentsInChildren<Text>()[0].text = newLevel.Name + $"  |  {newLevel.LevelName}";
             createdButton.GetComponentsInChildren<Text>()[1].text = newLevel.Author;
-            createdButton.GetComponentInChildren<Image>().sprite = newLevel.Sprite;
+            createdButton.GetComponentsInChildren<Image>()[1].sprite = newLevel.Sprite;
             createdButton.GetComponent<Button>().onClick.AddListener(() => LoadLevel(newLevel));
             i++;
         }
@@ -145,12 +161,14 @@ public class GameController : MonoBehaviour
 
     private void LoadLevel(Level level)
     {
+        PlayerPrefs.SetString("LastLevel", level.LevelName);
         menu.SetActive(false);
         scoreField.SetActive(true);
         comboField.SetActive(true);
         multiField.SetActive(true);
         pauseMenu.SetActive(true);
         mainAudio.clip = level.Audio;
+        mainAudio.loop = false;
         currentSegment = -1;
         currentLevel = level;
         Score = 0;
@@ -174,11 +192,15 @@ public class GameController : MonoBehaviour
         }
         ActiveCubes.Clear();
         mainAudio.Stop();
+        backgroundMusic = currentLevel.Audio;
         Score = 0;
         Combo = 0;
         ComboMulti = 0;
         currentLevel = null;
         levelIsPlaying = false;
+        mainAudio.clip = backgroundMusic;
+        mainAudio.loop = true;
+        mainAudio.Play();
     }
 
     private void SaveRecord()
@@ -243,7 +265,7 @@ public class GameController : MonoBehaviour
             createdButton.GetComponentsInChildren<Text>()[0].text = record.songName + $"  |  {record.levelName}";
             createdButton.GetComponentsInChildren<Text>()[1].text = record.levelAuthor;
             createdButton.GetComponentsInChildren<Text>()[2].text = record.score.ToString();
-            createdButton.GetComponentInChildren<Image>().sprite = record.sprite;
+            createdButton.GetComponentsInChildren<Image>()[1].sprite = record.sprite;
             i++;
         }
     }
