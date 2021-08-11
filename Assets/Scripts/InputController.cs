@@ -72,39 +72,66 @@ public class InputController : MonoBehaviour
                         GameObject target = TryRayCast(pos - deltaPos * j / fixRayCasts);
                         if (target != null)
                         {
-                            Cube sliced;
-                            if (gameMode == GameMode.main)
+                            if (gameController.ActiveCubes.Exists(cube => cube.gameObject == target))
                             {
-                                sliced = gameController.ActiveCubes.Single(cube => cube.gameObject == target);
-                            }
-                            else
-                            {
-                                sliced = _cubes.Single(cube => cube.gameObject == target);
-                            }
-                            switch (gameMode)
-                            {
-                                case GameMode.main:
-                                    // calculating direction
-                                    if (deltaPos.x > 50 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2)) // right
-                                        gameController.SliceCube(sliced, Cube.CubeOrientation.right);
-                                    if (deltaPos.x < -50 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2)) // left
-                                        gameController.SliceCube(sliced, Cube.CubeOrientation.left);
-                                    if (deltaPos.y > 50 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2)) // up
-                                        gameController.SliceCube(sliced, Cube.CubeOrientation.up);
-                                    if (deltaPos.y < -50 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2)) // down
-                                        gameController.SliceCube(sliced, Cube.CubeOrientation.down);
-                                    if (deltaPos.x > 50 && deltaPos.y > 50)
-                                        gameController.SliceCube(sliced, Cube.CubeOrientation.rightUp);
-                                    if (deltaPos.x > 50 && deltaPos.y < -50)
-                                        gameController.SliceCube(sliced, Cube.CubeOrientation.rightDown);
-                                    if (deltaPos.x < -50 && deltaPos.y < -50)
-                                        gameController.SliceCube(sliced, Cube.CubeOrientation.leftDown);
-                                    if (deltaPos.x < -50 && deltaPos.y > 50)
-                                        gameController.SliceCube(sliced, Cube.CubeOrientation.leftUp);
-                                    break;
-                                case GameMode.edit:
-                                    _editor.ClickedCube(sliced);
-                                    break;
+                                Cube sliced;
+                                if (gameMode == GameMode.main)
+                                {
+                                    sliced = gameController.ActiveCubes.Single(cube => cube.gameObject == target);
+                                }
+                                else
+                                {
+                                    sliced = _cubes.Single(cube => cube.gameObject == target);
+                                }
+                                switch (gameMode)
+                                {
+                                    case GameMode.main:
+                                        // calculating direction
+                                        if (deltaPos.x > 30 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2)) // right
+                                        {
+                                            gameController.SliceCube(sliced, Cube.CubeOrientation.right);
+                                            break;
+                                        }
+                                        if (deltaPos.x < -30 && Math.Abs(deltaPos.x) > Math.Abs(deltaPos.y * 2)) // left
+                                        {
+                                            gameController.SliceCube(sliced, Cube.CubeOrientation.left);
+                                            break;
+                                        }
+                                        if (deltaPos.y > 30 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2)) // up
+                                        {
+                                            gameController.SliceCube(sliced, Cube.CubeOrientation.up);
+                                            break;
+                                        }
+                                        if (deltaPos.y < -30 && Math.Abs(deltaPos.y) > Math.Abs(deltaPos.x * 2)) // down
+                                        {
+                                            gameController.SliceCube(sliced, Cube.CubeOrientation.down);
+                                            break;
+                                        }
+                                        if (deltaPos.x > 30 && deltaPos.y > 30) // right up
+                                        {
+                                            gameController.SliceCube(sliced, Cube.CubeOrientation.rightUp);
+                                            break;
+                                        }
+                                        if (deltaPos.x > 30 && deltaPos.y < -30) // right down
+                                        {
+                                            gameController.SliceCube(sliced, Cube.CubeOrientation.rightDown);
+                                            break;
+                                        }
+                                        if (deltaPos.x < -30 && deltaPos.y < -30) // left down
+                                        {
+                                            gameController.SliceCube(sliced, Cube.CubeOrientation.leftDown);
+                                            break;
+                                        }
+                                        if (deltaPos.x < -30 && deltaPos.y > 30) // left up
+                                        {
+                                            gameController.SliceCube(sliced, Cube.CubeOrientation.leftUp);
+                                            break;
+                                        }
+                                        break;
+                                    case GameMode.edit:
+                                        _editor.ClickedCube(sliced);
+                                        break;
+                                }
                             }
                         }
                     }

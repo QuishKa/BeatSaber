@@ -19,7 +19,7 @@ public class Editor : MonoBehaviour
     [SerializeField] private Text segmentShow;
     [SerializeField] private Slider slider;
     [SerializeField] private InputField lvlName;
-    [SerializeField] private Track[] tracks;
+    [SerializeField] private List<Track> tracks;
     private List<Cube> _cubes;
     private int currentSegment;
     private Track chosenTrack;
@@ -27,7 +27,7 @@ public class Editor : MonoBehaviour
     private bool paramsChosen = true;
     public bool DeleteMode { private get; set; } = false;
     public bool AddMode { private get; set; } = false;
-    private void Awake()
+    private void Awake() // load all awailable songs
     {
         _cubes = FindObjectsOfType<Cube>().ToList();
         int i = 0;
@@ -50,7 +50,12 @@ public class Editor : MonoBehaviour
     {
         if (editMenu.activeInHierarchy)
         {
-            foreach (Cube cube in _cubes)
+            // counts which segment we're currently in based on the song time
+            currentSegment = Mathf.FloorToInt(audioSource.time / (1 / (float)segmentMulti));
+            currentSegment = currentSegment >= level.Segments ? currentSegment - 1 : currentSegment;
+            currentSegment = currentSegment < 0 ? 0 : currentSegment;
+            segmentShow.text = $"Segment: {currentSegment} / {level.Segments - 1}";
+            foreach (Cube cube in _cubes) // showing placed cubes
             {
                 Level.CubeSegment cubeSegment = level.cubeSegments[currentSegment];
                 if (cubeSegment.elements.Exists(elem => elem.position == (Vector2)cube.transform.position))
@@ -66,16 +71,12 @@ public class Editor : MonoBehaviour
                     cube.transform.rotation = cube.DefaultRotation;
                 }
             }
-            currentSegment = Mathf.FloorToInt(audioSource.time / (1 / (float)segmentMulti));
-            currentSegment = currentSegment > level.Segments ? currentSegment - 1 : currentSegment;
-            currentSegment = currentSegment < 0 ? 0 : currentSegment;
-            segmentShow.text = $"Segment: {currentSegment} / {level.Segments}";
             slider.value = audioSource.time / audioSource.clip.length;
         }
     }
     public void ClickedCube(Cube chosenCube)
     {
-        if (chosenCube.CurrentColor == Cube.CubeColor.gray && paramsChosen && AddMode)
+        if (chosenCube.CurrentColor == Cube.CubeColor.gray && paramsChosen && AddMode) // add cube on grey position
         {
             paramsChosen = false;
             chosenCube.CurrentColor = Cube.CubeColor.blue;
@@ -84,7 +85,7 @@ public class Editor : MonoBehaviour
             level.cubeSegments[currentSegment].elements.Last().position = pos;
             rotations.SetActive(true);
         }
-        if (chosenCube.CurrentColor != Cube.CubeColor.gray && DeleteMode)
+        if (chosenCube.CurrentColor != Cube.CubeColor.gray && DeleteMode) // delete cube from colored position
         {
             Level.Element deleted = level.cubeSegments[currentSegment].elements.First(elem => elem.position == (Vector2)chosenCube.transform.position);
             level.cubeSegments[currentSegment].elements.Remove(deleted);
@@ -108,24 +109,25 @@ public class Editor : MonoBehaviour
     {
         audioSource.time = slider.value * audioSource.clip.length;
     }
-    public void MoveSecond(int sec)
+    public void MoveSecond(int sec) // move by second
     {
         audioSource.time += sec;
     }
-    public void MoveSegment(int seg)
+    public void MoveSegment(int seg) // move by segment
     {
         audioSource.time += 1 / (float)segmentMulti * seg;
     }
-    public void ChosenSong(Track track)
+    public void ChosenSong(Track track) // load edit mode of chosen song
     {
         chosenTrack = track;
+        int index = tracks.IndexOf(track);
         audioSource.clip = chosenTrack.audio;
-        level = new Level(chosenTrack, segmentMulti);
+        level = new Level(chosenTrack, segmentMulti, index);
         choosingMenu.SetActive(false);
         editMenu.SetActive(true);
         cubes.SetActive(true);
     }
-    public void Save()
+    public void Save() // save track
     {
         string path;
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -157,24 +159,22 @@ public struct Track
 [System.Serializable]
 public class Level
 {
-    public Level(Track track, int segMulti)
+    public Level(Track track, int segMulti, int id)
     {
         Segments = Mathf.FloorToInt(track.audio.length) * segMulti;
-        Audio = track.audio;
+        index = id;
         Author = track.author;
         Name = track.name;
-        Sprite = track.sprite;
         cubeSegments = new CubeSegment[Segments];
         for (int i = 0; i < cubeSegments.Length; i++)
         {
             cubeSegments[i] = new CubeSegment();
         }
     }
+    public int index;
     public string LevelName;
-    public AudioClip Audio;
     public string Author;
     public string Name;
-    public Sprite Sprite;
     public int Segments;
     public CubeSegment[] cubeSegments;
     [System.Serializable]

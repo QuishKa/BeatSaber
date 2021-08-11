@@ -10,7 +10,7 @@ public class Cube : MonoBehaviour
     public enum CubeOrientation { up, rightUp, right, rightDown, down, leftDown, left, leftUp }
     public enum CubeColor { blue, red, gray }
     private CubeColor currentColor;
-    void Awake()
+    void Awake() // set defaults
     {
         ArrowMaterial = gameObject.GetComponentsInChildren<Renderer>()[0].material;
         ArrowMaterial.SetColor("_Color", new Color(0.705882f, 0.741176f, 0.905882f));
@@ -20,7 +20,7 @@ public class Cube : MonoBehaviour
         DefaultRotation = gameObject.transform.rotation;
         CurrentColor = CubeColor.gray;
     }
-    public CubeColor CurrentColor
+    public CubeColor CurrentColor // awailable colors
     {
         get => currentColor;
         set
@@ -47,7 +47,7 @@ public class Cube : MonoBehaviour
         }
     }
     public CubeOrientation Orientation { get; set; }
-    public void Destroyed()
+    public void Destroyed() // on destroy
     {
         Color currentCubeColor = CubeMaterial.GetColor("_Color");
         Color currentArrowColor = ArrowMaterial.GetColor("_Color");
@@ -66,7 +66,7 @@ public class Cube : MonoBehaviour
         LCubeMat.SetColor("_Color", currentCubeColor);
         Rigidbody rigRHalf = RHalf.GetComponent<Rigidbody>();
         Rigidbody rigLHalf = LHalf.GetComponent<Rigidbody>();
-        rigRHalf.AddForce(new Vector3(2f, -5f, -1f), ForceMode.Impulse);
-        rigLHalf.AddForce(new Vector3(-2f, -5f, 1f), ForceMode.Impulse);
+        rigRHalf.AddForce(new Vector3(10f, -70f, -5f), ForceMode.Impulse);
+        rigLHalf.AddForce(new Vector3(-10f, -70f, 5f), ForceMode.Impulse);
     }
 }
